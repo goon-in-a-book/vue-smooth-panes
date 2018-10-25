@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "vue": "^2.5.17",
+    "vue-multipane": "^0.9.5",
     "vuex": "^3.0.1"
   },
   "devDependencies": {
@@ -26,7 +27,10 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
-    "rules": {},
+    "rules": {
+      "no-console": "off",
+      "no-unused-vars": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
     }
