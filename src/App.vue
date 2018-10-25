@@ -4,7 +4,10 @@
     <panel-container
       direction="horizontal">
       <panel
-        defaultLength="200px">
+        :defaultLength="300">
+      </panel>
+      <panel
+        :defaultLength="200">
       </panel>
       <panel>
         <panel-container
@@ -16,10 +19,8 @@
               direction="horizontal">
               <panel>
               </panel>
-              <panel>
-              </panel>
               <panel
-                :minLength="200">
+                :minLength="300">
                 <panel-container
                   direction="vertical">
                   <panel

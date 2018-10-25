@@ -15,13 +15,8 @@ export default {
       default: 0
     },
     defaultLength: {
-      type: String,
+      type: Number,
       required: false
-    },
-    maxLength: {
-      type: String,
-      required: false,
-      default: '100%'
     },
     color: {
       type: String,
@@ -30,13 +25,8 @@ export default {
     }
   },
   mounted() {
-    this.$el.style['min-' + this.$parent.primaryAxis] = this.minLength + 'px';
-    this.$el.style['max-' + this.$parent.primaryAxis] = this.maxLength;
+    this.$el.style.flexBasis = this.minLength + 'px';
     this.$el.style[this.$parent.secondaryAxis] = '100%';
-    if (this.defaultLength) {
-      this.$el.style[this.$parent.primaryAxis] = this.defaultLength;
-      this.$el.style.flexGrow = '0';
-    }
     if (this.color) {
       this.$el.style.backgroundColor = this.color;
     } else if (this.$parent.panelColor) {
@@ -46,6 +36,9 @@ export default {
   methods: {
     clickHandler(event) {
       this.$parent.$emit('panelClicked', event);
+    },
+    length() {
+      return this.$el[this.$parent.dimension] - this.minLength;
     }
   }
 };
@@ -56,5 +49,7 @@ export default {
   flex-grow: 1;
   overflow: auto;
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);
+  flex-basis: 0;
+  flex-shrink: 0;
 }
 </style>

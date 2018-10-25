@@ -61,7 +61,8 @@ export default {
 
 <style scoped>
 .panel-separator {
-  display: inline-flex;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
   overflow: hidden;

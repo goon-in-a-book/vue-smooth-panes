@@ -73,26 +73,25 @@ export default {
       this.direction === 'vertical' ? 'column' : 'row';
 
     let numElements = this.$slots.default.length;
-    this.panels = Array.from(this.$slots.default);
+    this.panels = this.$slots.default
+      .filter(
+        element =>
+          element.elm.classList.contains('panel') && element.componentInstance
+      )
+      .map(item => item.componentInstance);
+
     if (this.panels.length === 0) {
       throw 'No panels in panel-container';
     }
 
-    for (let element of this.panels) {
-      if (!element.elm.classList.contains('panel')) {
-        throw 'Child element of panel-container is not a panel';
-      }
-      if (!element.componentInstance) {
-        throw 'Panel is not a Vue component instance';
-      }
-    }
-
     for (let i = 1; i < this.panels.length; i++) {
-      let leftPanel = this.panels[i - 1].componentInstance;
-      let rightPanel = this.panels[i].componentInstance;
+      let leftPanel = this.panels[i - 1];
+      let rightPanel = this.panels[i];
       let separator = this.createSeparator(leftPanel, rightPanel);
       this.$el.insertBefore(separator.$el, rightPanel.$el);
     }
+
+    this.evenlyDistributeSpace();
   },
   computed: {
     primaryAxis() {
@@ -117,8 +116,8 @@ export default {
       };
 
       this.initialLengths = {
-        left: separator.leftPanel.$el[this.dimension],
-        right: separator.rightPanel.$el[this.dimension]
+        left: separator.leftPanel.length(),
+        right: separator.rightPanel.length()
       };
       document.addEventListener('mousemove', this.dragSeparator);
       document.addEventListener('selectstart', this.disableTextSelect);
@@ -146,6 +145,16 @@ export default {
       this.separators.push(separator);
       return separator;
     },
+    containerLength() {
+      return this.panels
+        .map(panel => panel.$el[this.dimension])
+        .reduce((totalLength, length) => totalLength + length);
+    },
+    freeContainerSpace() {
+      return this.panels
+        .map(panel => panel.length())
+        .reduce((totalLength, length) => totalLength + length);
+    },
     dragSeparator(event) {
       let diff =
         this.direction === 'vertical'
@@ -153,32 +162,63 @@ export default {
           : event.pageX - this.clickCoords.x;
 
       let panelsLength = this.initialLengths.left + this.initialLengths.right;
-      let containerSpace =
-        this.$el[this.dimension] - this.separatorWidth * this.separators.length;
-      let containerRatio = (panelsLength / containerSpace) * 100;
+      let containerRatio = panelsLength / this.freeContainerSpace();
 
-      let leftRatio = (this.initialLengths.left + diff) / panelsLength;
-      leftRatio = Math.min(Math.max(leftRatio, 0), 1);
+      let leftLength = this.initialLengths.left + diff;
+      let leftRatio = Math.min(Math.max(leftLength / panelsLength, 0), 1);
       let rightRatio = 1 - leftRatio;
 
-      if (this.selectedSeparator.leftPanel.minLength) {
-        let minLengthRatio =
-          this.selectedSeparator.leftPanel.minLength / panelsLength;
-        leftRatio = Math.max(leftRatio, minLengthRatio);
-        rightRatio = Math.min(rightRatio, 1 - leftRatio);
-      }
-      if (this.selectedSeparator.rightPanel.minLength) {
-        let minLengthRatio =
-          this.selectedSeparator.rightPanel.minLength / panelsLength;
-        rightRatio = Math.max(rightRatio, minLengthRatio);
-        leftRatio = Math.min(leftRatio, 1 - rightRatio);
+      this.selectedSeparator.leftPanel.$el.style.flexGrow =
+        leftRatio * containerRatio;
+
+      this.selectedSeparator.rightPanel.$el.style.flexGrow =
+        rightRatio * containerRatio;
+    },
+    evenlyDistributeSpace() {
+      let totalPanelsLength = this.panels.reduce(
+        (sum, panel) => sum + panel.length(),
+        0
+      );
+
+      let freeSpacePixels = this.panels.reduce(
+        (space, panel) => space - panel.minLength,
+        totalPanelsLength
+      );
+
+      let nonDefaultSpace = totalPanelsLength;
+      let nonDefaultPanels = [];
+      for (let panel of this.panels) {
+        if (panel.defaultLength && panel.defaultLength > panel.minLength) {
+          nonDefaultSpace -= panel.defaultLength;
+          panel.$el.style.flexGrow =
+            (panel.defaultLength - panel.minLength) / freeSpacePixels;
+          continue;
+        }
+        nonDefaultPanels.push(panel);
       }
 
-      this.selectedSeparator.leftPanel.$el.style[this.primaryAxis] =
-        leftRatio * containerRatio + '%';
+      let remainingPanelLength = nonDefaultSpace;
+      let smallRemainingPanels = [];
+      let spacePerPanel = remainingPanelLength / nonDefaultPanels.length;
 
-      this.selectedSeparator.rightPanel.$el.style[this.primaryAxis] =
-        rightRatio * containerRatio + '%';
+      for (let panel of nonDefaultPanels) {
+        if (panel.minLength > spacePerPanel) {
+          remainingPanelLength -= panel.minLength;
+          panel.$el.style.flexGrow = 0;
+          continue;
+        }
+        smallRemainingPanels.push(panel);
+      }
+
+      spacePerPanel = remainingPanelLength / smallRemainingPanels.length;
+      for (let panel of smallRemainingPanels) {
+        if (panel.minLength > 0) {
+          panel.$el.style.flexGrow =
+            (spacePerPanel - panel.minLength) / freeSpacePixels;
+          continue;
+        }
+        panel.$el.style.flexGrow = spacePerPanel / freeSpacePixels;
+      }
     }
   }
 };
@@ -188,6 +228,8 @@ export default {
 .panel-container {
   width: 100%;
   height: 100%;
-  display: inline-flex;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
 }
 </style>
