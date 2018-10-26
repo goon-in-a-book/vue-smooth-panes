@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": {
     "name": "Goon",
+    "url": "https: //github.com/goon-in-a-book/vue-smooth-panes",
     "email": "goon.in.a.book@gmail.com"
   },
   "private": false,
