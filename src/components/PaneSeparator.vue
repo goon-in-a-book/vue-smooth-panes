@@ -1,17 +1,17 @@
 <template>
   <div
     ref="body" 
-    class="panel-separator"
+    class="pane-separator"
     @mousedown="grabbed">
     <div
       ref="dash"
-      class="panel-separator-dash"/>
+      class="pane-separator-dash"/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'panel-separator',
+  name: 'pane-separator',
   props: {
     leftPanel: {
       type: Object,
@@ -25,9 +25,9 @@ export default {
   mounted() {
     let body = this.$refs.body;
     if (this.$parent.direction === 'vertical') {
-      body.classList.add('panel-separator-vertical');
+      body.classList.add('pane-separator-vertical');
     } else {
-      body.classList.add('panel-separator-horizontal');
+      body.classList.add('pane-separator-horizontal');
     }
     body.style[this.$parent.secondaryAxis] = '100%';
     body.style[this.$parent.primaryAxis] = this.$parent.separatorWidth + 'px';
@@ -60,7 +60,7 @@ export default {
 </script>
 
 <style scoped>
-.panel-separator {
+.pane-separator {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -69,19 +69,19 @@ export default {
   flex-shrink: 0;
 }
 
-.panel-separator-vertical:hover {
+.pane-separator-vertical:hover {
   cursor: row-resize;
 }
 
-.panel-separator-horizontal:hover {
+.pane-separator-horizontal:hover {
   cursor: col-resize;
 }
 
-.panel-separator:hover .panel-separator-dash {
+.pane-separator:hover .pane-separator-dash {
   opacity: 1;
 }
 
-.panel-separator-dash {
+.pane-separator-dash {
   opacity: 0;
   background-color: none;
   transition: opacity 0.3s;

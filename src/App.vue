@@ -1,55 +1,55 @@
 <template>
   <div
     id="app">
-    <panel-container
+    <pane-container
       direction="horizontal">
-      <panel
+      <pane
         :defaultLength="300">
-      </panel>
-      <panel
+      </pane>
+      <pane
         :defaultLength="200">
-      </panel>
-      <panel>
-        <panel-container
+      </pane>
+      <pane>
+        <pane-container
           direction="vertical">
-          <panel>
-          </panel>
-          <panel>
-            <panel-container
+          <pane>
+          </pane>
+          <pane>
+            <pane-container
               direction="horizontal">
-              <panel>
-              </panel>
-              <panel
+              <pane>
+              </pane>
+              <pane
                 :minLength="300">
-                <panel-container
+                <pane-container
                   direction="vertical">
-                  <panel
+                  <pane
                     :minLength="200">
-                  </panel>
-                  <panel>
-                  </panel>
-                  <panel
+                  </pane>
+                  <pane>
+                  </pane>
+                  <pane
                     :minLength="200">
-                  </panel>
-                </panel-container>
-              </panel>
-            </panel-container>
-          </panel>
-        </panel-container>
-      </panel>
-    </panel-container>
+                  </pane>
+                </pane-container>
+              </pane>
+            </pane-container>
+          </pane>
+        </pane-container>
+      </pane>
+    </pane-container>
   </div>
 </template>
 
 <script>
-import PanelContainer from '@/components/PanelContainer';
-import Panel from '@/components/Panel';
+import PaneContainer from '@/components/PaneContainer';
+import Pane from '@/components/Pane';
 
 export default {
   name: 'app',
   components: {
-    PanelContainer,
-    Panel
+    PaneContainer,
+    Pane
   }
 };
 </script>

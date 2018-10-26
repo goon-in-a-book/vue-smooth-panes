@@ -1,6 +1,6 @@
 <template>
   <div
-    class="panel-container"
+    class="pane-container"
     ref="mainPanel">
     <slot/>
   </div>
@@ -8,12 +8,12 @@
 
 <script>
 import Vue from 'vue';
-import PanelSeparator from '@/components/PanelSeparator';
+import PaneSeparator from '@/components/PaneSeparator';
 
 export default {
-  name: 'panel-container',
+  name: 'pane-container',
   components: {
-    PanelSeparator
+    PaneSeparator
   },
   props: {
     direction: {
@@ -76,12 +76,12 @@ export default {
     this.panels = this.$slots.default
       .filter(
         element =>
-          element.elm.classList.contains('panel') && element.componentInstance
+          element.elm.classList.contains('pane') && element.componentInstance
       )
       .map(item => item.componentInstance);
 
     if (this.panels.length === 0) {
-      throw 'No panels in panel-container';
+      throw 'No panels in pane-container';
     }
 
     for (let i = 1; i < this.panels.length; i++) {
@@ -133,7 +133,7 @@ export default {
       event.preventDefault();
     },
     createSeparator(leftPanel, rightPanel) {
-      let ComponentClass = Vue.extend(PanelSeparator);
+      let ComponentClass = Vue.extend(PaneSeparator);
       let separator = new ComponentClass({
         parent: this,
         propsData: {
@@ -147,12 +147,12 @@ export default {
     },
     containerLength() {
       return this.panels
-        .map(panel => panel.$el[this.dimension])
+        .map(pane => pane.$el[this.dimension])
         .reduce((totalLength, length) => totalLength + length);
     },
     freeContainerSpace() {
       return this.panels
-        .map(panel => panel.length())
+        .map(pane => pane.length())
         .reduce((totalLength, length) => totalLength + length);
     },
     dragSeparator(event) {
@@ -176,48 +176,48 @@ export default {
     },
     evenlyDistributeSpace() {
       let totalPanelsLength = this.panels.reduce(
-        (sum, panel) => sum + panel.length(),
+        (sum, pane) => sum + pane.length(),
         0
       );
 
       let freeSpacePixels = this.panels.reduce(
-        (space, panel) => space - panel.minLength,
+        (space, pane) => space - pane.minLength,
         totalPanelsLength
       );
 
       let nonDefaultSpace = totalPanelsLength;
       let nonDefaultPanels = [];
-      for (let panel of this.panels) {
-        if (panel.defaultLength && panel.defaultLength > panel.minLength) {
-          nonDefaultSpace -= panel.defaultLength;
-          panel.$el.style.flexGrow =
-            (panel.defaultLength - panel.minLength) / freeSpacePixels;
+      for (let pane of this.panels) {
+        if (pane.defaultLength && pane.defaultLength > pane.minLength) {
+          nonDefaultSpace -= pane.defaultLength;
+          pane.$el.style.flexGrow =
+            (pane.defaultLength - pane.minLength) / freeSpacePixels;
           continue;
         }
-        nonDefaultPanels.push(panel);
+        nonDefaultPanels.push(pane);
       }
 
       let remainingPanelLength = nonDefaultSpace;
       let smallRemainingPanels = [];
       let spacePerPanel = remainingPanelLength / nonDefaultPanels.length;
 
-      for (let panel of nonDefaultPanels) {
-        if (panel.minLength > spacePerPanel) {
-          remainingPanelLength -= panel.minLength;
-          panel.$el.style.flexGrow = 0;
+      for (let pane of nonDefaultPanels) {
+        if (pane.minLength > spacePerPanel) {
+          remainingPanelLength -= pane.minLength;
+          pane.$el.style.flexGrow = 0;
           continue;
         }
-        smallRemainingPanels.push(panel);
+        smallRemainingPanels.push(pane);
       }
 
       spacePerPanel = remainingPanelLength / smallRemainingPanels.length;
-      for (let panel of smallRemainingPanels) {
-        if (panel.minLength > 0) {
-          panel.$el.style.flexGrow =
-            (spacePerPanel - panel.minLength) / freeSpacePixels;
+      for (let pane of smallRemainingPanels) {
+        if (pane.minLength > 0) {
+          pane.$el.style.flexGrow =
+            (spacePerPanel - pane.minLength) / freeSpacePixels;
           continue;
         }
-        panel.$el.style.flexGrow = spacePerPanel / freeSpacePixels;
+        pane.$el.style.flexGrow = spacePerPanel / freeSpacePixels;
       }
     }
   }
@@ -225,7 +225,7 @@ export default {
 </script>
 
 <style>
-.panel-container {
+.pane-container {
   width: 100%;
   height: 100%;
   display: flex;

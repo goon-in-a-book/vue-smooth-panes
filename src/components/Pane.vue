@@ -1,13 +1,13 @@
 <template>
   <div
-    class="panel" @click="clickHandler">
+    class="pane" @click="clickHandler">
     <slot/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'panel',
+  name: 'pane',
   props: {
     minLength: {
       type: Number,
@@ -45,7 +45,7 @@ export default {
 </script>
 
 <style>
-.panel {
+.pane {
   flex-grow: 1;
   overflow: auto;
   box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.2);

@@ -1,12 +1,18 @@
 {
-  "name": "test-proj",
-  "version": "0.1.0",
-  "private": true,
+  "name": "vue-smooth-panes",
+  "version": "1.0.0",
+  "author": {
+    "name": "Goon",
+    "email": "goon.in.a.book@gmail.com"
+  },
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-bundle": "vue-cli-service build --target lib --name vue-smooth-panes ./src/components/index.js",
     "lint": "vue-cli-service lint"
   },
+  "main": "./dist/vue-smooth-panes.common.js",
   "dependencies": {
     "vue": "^2.5.17",
     "vue-multipane": "^0.9.5",
@@ -18,6 +24,13 @@
     "@vue/cli-service": "^3.0.5",
     "vue-template-compiler": "^2.5.17"
   },
+  "files": [
+    "dist/*",
+    "src/*",
+    "public/*",
+    "*.json",
+    "*.js"
+  ],
   "eslintConfig": {
     "root": true,
     "env": {
