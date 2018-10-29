@@ -173,6 +173,8 @@ export default {
 
       this.selectedSeparator.rightPanel.$el.style.flexGrow =
         rightRatio * containerRatio;
+
+      this.$emit('resize', event, this.selectedSeparator);
     },
     evenlyDistributeSpace() {
       let totalPanelsLength = this.panels.reduce(
