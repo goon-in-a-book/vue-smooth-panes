@@ -1,16 +1,34 @@
-import Vue from 'vue';
 import Pane from './Pane.vue';
-import PaneSeparator from './PaneSeparator.vue';
 import PaneContainer from './PaneContainer.vue';
 
-const Components = {
+const components = {
   Pane,
-  PaneSeparator,
   PaneContainer
 };
 
-Object.keys(Components).forEach(name => {
-  Vue.component(name, Components[name]);
-});
+export function install(Vue) {
+  if (install.installed) return;
+  install.installed = true;
+  Object.keys(components).forEach(name => {
+    Vue.component(name, components[name]);
+  });
+}
 
-export default Components;
+// Create module definition for Vue.use()
+const plugin = {
+  install
+};
+
+// Auto-install when vue is found (eg. in browser via <script> tag)
+let GlobalVue = null;
+if (typeof window !== 'undefined') {
+  GlobalVue = window.Vue;
+} else if (typeof global !== 'undefined') {
+  GlobalVue = global.Vue;
+}
+if (GlobalVue) {
+  GlobalVue.use(plugin);
+}
+
+// To allow use as module (npm/webpack/etc.) export component
+export default components;
