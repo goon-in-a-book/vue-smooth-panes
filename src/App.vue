@@ -1,36 +1,21 @@
 <template>
-  <div
-    id="app">
-    <pane-container
-      direction="horizontal">
-      <pane
-        :defaultLength="300">
-      </pane>
-      <pane
-        :defaultLength="200">
+  <div id="app">
+    <pane-container direction="horizontal">
+      <pane :enabled="leftPaneEnabled" :defaultLength="300"></pane>
+      <pane :defaultLength="200">
+        <button @click="togglePane">Add Pane</button>
       </pane>
       <pane>
-        <pane-container
-          direction="vertical">
+        <pane-container direction="vertical">
+          <pane></pane>
           <pane>
-          </pane>
-          <pane>
-            <pane-container
-              direction="horizontal">
-              <pane>
-              </pane>
-              <pane
-                :minLength="300">
-                <pane-container
-                  direction="vertical">
-                  <pane
-                    :minLength="200">
-                  </pane>
-                  <pane>
-                  </pane>
-                  <pane
-                    :minLength="200">
-                  </pane>
+            <pane-container direction="horizontal">
+              <pane></pane>
+              <pane :minLength="300">
+                <pane-container direction="vertical">
+                  <pane :minLength="200"></pane>
+                  <pane></pane>
+                  <pane :minLength="200"></pane>
                 </pane-container>
               </pane>
             </pane-container>
@@ -42,14 +27,24 @@
 </template>
 
 <script>
-import PaneContainer from '@/components/PaneContainer';
-import Pane from '@/components/Pane';
+import PaneContainer from "@/components/PaneContainer";
+import Pane from "@/components/Pane";
 
 export default {
-  name: 'app',
+  name: "app",
   components: {
     PaneContainer,
     Pane
+  },
+  data() {
+    return {
+      leftPaneEnabled: true
+    };
+  },
+  methods: {
+    togglePane() {
+      this.leftPaneEnabled = !this.leftPaneEnabled;
+    }
   }
 };
 </script>
@@ -65,7 +60,7 @@ body {
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;

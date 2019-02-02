@@ -1,17 +1,15 @@
 <template>
-  <div
-    class="pane-container"
-    ref="mainPanel">
+  <div class="pane-container" ref="mainPanel">
     <slot/>
   </div>
 </template>
 
 <script>
-import Vue from 'vue';
-import PaneSeparator from '@/components/PaneSeparator';
+import Vue from "vue";
+import PaneSeparator from "@/components/PaneSeparator";
 
 export default {
-  name: 'pane-container',
+  name: "pane-container",
   components: {
     PaneSeparator
   },
@@ -19,15 +17,15 @@ export default {
     direction: {
       required: false,
       type: String,
-      default: 'vertical',
+      default: "vertical",
       validator: function(value) {
-        return ['vertical', 'horizontal'].indexOf(value) !== -1;
+        return ["vertical", "horizontal"].indexOf(value) !== -1;
       }
     },
     separatorColor: {
       required: false,
       type: String,
-      default: 'white'
+      default: "white"
     },
     dash: {
       required: false,
@@ -37,22 +35,22 @@ export default {
     dashColor: {
       required: false,
       type: String,
-      default: 'lightgray'
+      default: "lightgray"
     },
     separatorWidth: {
       required: false,
       type: Number,
       default: 8
     },
-    panelColor: {
+    paneColor: {
       required: false,
       type: String,
-      default: 'lightgray'
+      default: "lightgray"
     }
   },
   data() {
     return {
-      panels: [],
+      panes: [],
       separators: [],
       selectedSeparator: null,
       clickCoords: {
@@ -60,52 +58,52 @@ export default {
         y: 0
       },
       initialLengths: {
-        left: '0px',
-        right: '0px'
+        left: "0px",
+        right: "0px"
       }
     };
   },
+  watch: {
+    enabledPanes() {
+      this.destroySeparators();
+      this.createSeparators();
+      this.evenlyDistributeSpace();
+    }
+  },
   mounted() {
-    this.$on('panelClicked', this.panelClicked);
-    this.$on('separatorGrabbed', this.separatorGrabbed);
+    this.$on("paneClicked", this.paneClicked);
+    this.$on("separatorGrabbed", this.separatorGrabbed);
 
     this.$refs.mainPanel.style.flexDirection =
-      this.direction === 'vertical' ? 'column' : 'row';
+      this.direction === "vertical" ? "column" : "row";
 
     let numElements = this.$slots.default.length;
-    this.panels = this.$slots.default
-      .filter(
-        element =>
-          element.elm.classList.contains('pane') && element.componentInstance
-      )
-      .map(item => item.componentInstance);
+    this.panes = this.$slots.default
+      .filter(element => {
+        return element.tag.includes("pane") && element.componentInstance;
+      })
+      .map(element => element.componentInstance);
 
-    if (this.panels.length === 0) {
-      throw 'No panels in pane-container';
+    if (this.panes.length === 0) {
+      throw "No panes in pane-container";
     }
-
-    for (let i = 1; i < this.panels.length; i++) {
-      let leftPanel = this.panels[i - 1];
-      let rightPanel = this.panels[i];
-      let separator = this.createSeparator(leftPanel, rightPanel);
-      this.$el.insertBefore(separator.$el, rightPanel.$el);
-    }
-
-    this.evenlyDistributeSpace();
   },
   computed: {
     primaryAxis() {
-      return this.direction === 'vertical' ? 'height' : 'width';
+      return this.direction === "vertical" ? "height" : "width";
     },
     secondaryAxis() {
-      return this.direction === 'vertical' ? 'width' : 'height';
+      return this.direction === "vertical" ? "width" : "height";
     },
     dimension() {
-      return this.direction === 'vertical' ? 'clientHeight' : 'clientWidth';
+      return this.direction === "vertical" ? "clientHeight" : "clientWidth";
+    },
+    enabledPanes() {
+      return this.panes.filter(pane => pane.enabled);
     }
   },
   methods: {
-    panelClicked(event) {
+    paneClicked(event) {
       // console.log('clicked');
     },
     separatorGrabbed(event, separator) {
@@ -119,81 +117,94 @@ export default {
         left: separator.leftPanel.length(),
         right: separator.rightPanel.length()
       };
-      document.addEventListener('mousemove', this.dragSeparator);
-      document.addEventListener('selectstart', this.disableTextSelect);
-      document.addEventListener('mouseup', this.separatorReleased);
+      document.addEventListener("mousemove", this.dragSeparator);
+      document.addEventListener("selectstart", this.disableTextSelect);
+      document.addEventListener("mouseup", this.separatorReleased);
     },
     separatorReleased(event) {
-      document.removeEventListener('mousemove', this.dragSeparator);
-      document.removeEventListener('selectstart', this.disableTextSelect);
-      document.removeEventListener('mouseup', this.separatorReleased);
+      document.removeEventListener("mousemove", this.dragSeparator);
+      document.removeEventListener("selectstart", this.disableTextSelect);
+      document.removeEventListener("mouseup", this.separatorReleased);
       this.selectedSeparator = null;
     },
     disableTextSelect(event) {
       event.preventDefault();
     },
-    createSeparator(leftPanel, rightPanel) {
-      let ComponentClass = Vue.extend(PaneSeparator);
-      let separator = new ComponentClass({
-        parent: this,
-        propsData: {
-          leftPanel: leftPanel,
-          rightPanel: rightPanel
-        }
-      });
-      separator.$mount();
-      this.separators.push(separator);
-      return separator;
+    destroySeparators() {
+      for (let separator of this.separators) {
+        let separatorNode = separator.$el;
+        separatorNode.remove();
+      }
+    },
+    createSeparators(leftPanel, rightPanel) {
+      for (let i = 1; i < this.enabledPanes.length; i++) {
+        let leftPanel = this.enabledPanes[i - 1];
+        let rightPanel = this.enabledPanes[i];
+
+        let ComponentClass = Vue.extend(PaneSeparator);
+        let separator = new ComponentClass({
+          parent: this,
+          propsData: {
+            leftPanel: leftPanel,
+            rightPanel: rightPanel
+          }
+        });
+        separator.$mount();
+        this.separators.push(separator);
+        this.$el.insertBefore(separator.$el, rightPanel.$el);
+      }
     },
     containerLength() {
-      return this.panels
+      return this.panes
         .map(pane => pane.$el[this.dimension])
         .reduce((totalLength, length) => totalLength + length);
     },
     freeContainerSpace() {
-      return this.panels
+      return this.panes
         .map(pane => pane.length())
         .reduce((totalLength, length) => totalLength + length);
     },
     dragSeparator(event) {
       let diff =
-        this.direction === 'vertical'
+        this.direction === "vertical"
           ? event.pageY - this.clickCoords.y
           : event.pageX - this.clickCoords.x;
 
-      let panelsLength = this.initialLengths.left + this.initialLengths.right;
-      let containerRatio = panelsLength / this.freeContainerSpace();
+      let panesLength = this.initialLengths.left + this.initialLengths.right;
+      let containerRatio = panesLength / this.freeContainerSpace();
 
       let leftLength = this.initialLengths.left + diff;
-      let leftRatio = Math.min(Math.max(leftLength / panelsLength, 0), 1);
+      let leftRatio = Math.min(Math.max(leftLength / panesLength, 0), 1);
       let rightRatio = 1 - leftRatio;
 
-      this.selectedSeparator.leftPanel.$el.style.flexGrow =
-        leftRatio * containerRatio;
+      this.selectedSeparator.leftPanel.setFlexGrow(leftRatio * containerRatio);
 
-      this.selectedSeparator.rightPanel.$el.style.flexGrow =
-        rightRatio * containerRatio;
+      this.selectedSeparator.rightPanel.setFlexGrow(
+        rightRatio * containerRatio
+      );
 
-      this.$emit('resize', event, this.selectedSeparator);
+      this.$emit("resize", event, this.selectedSeparator);
     },
-    evenlyDistributeSpace() {
-      let totalPanelsLength = this.panels.reduce(
+    evenlyDistributeSpace(firstRun = false) {
+      let totalPanelsLength = this.enabledPanes.reduce(
         (sum, pane) => sum + pane.length(),
         0
       );
 
-      let freeSpacePixels = this.panels.reduce(
+      // Calculate total free distributable space
+      let freeSpacePixels = this.enabledPanes.reduce(
         (space, pane) => space - pane.minLength,
         totalPanelsLength
       );
 
       let nonDefaultSpace = totalPanelsLength;
       let nonDefaultPanels = [];
-      for (let pane of this.panels) {
+      for (let pane of this.enabledPanes) {
         if (pane.defaultLength && pane.defaultLength > pane.minLength) {
           nonDefaultSpace -= pane.defaultLength;
-          pane.$el.style.flexGrow =
-            (pane.defaultLength - pane.minLength) / freeSpacePixels;
+          pane.setFlexGrow(
+            (pane.defaultLength - pane.minLength) / freeSpacePixels
+          );
           continue;
         }
         nonDefaultPanels.push(pane);
@@ -206,7 +217,7 @@ export default {
       for (let pane of nonDefaultPanels) {
         if (pane.minLength > spacePerPanel) {
           remainingPanelLength -= pane.minLength;
-          pane.$el.style.flexGrow = 0;
+          pane.setFlexGrow(0);
           continue;
         }
         smallRemainingPanels.push(pane);
@@ -215,11 +226,10 @@ export default {
       spacePerPanel = remainingPanelLength / smallRemainingPanels.length;
       for (let pane of smallRemainingPanels) {
         if (pane.minLength > 0) {
-          pane.$el.style.flexGrow =
-            (spacePerPanel - pane.minLength) / freeSpacePixels;
+          pane.setFlexGrow((spacePerPanel - pane.minLength) / freeSpacePixels);
           continue;
         }
-        pane.$el.style.flexGrow = spacePerPanel / freeSpacePixels;
+        pane.setFlexGrow(spacePerPanel / freeSpacePixels);
       }
     }
   }
