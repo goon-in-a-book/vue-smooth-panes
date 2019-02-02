@@ -35,15 +35,6 @@ export default {
       default: true
     }
   },
-  watch: {
-    enabled() {
-      if (this.enabled) {
-        this.$parent.$emit("paneDisabled", this);
-      } else {
-        this.$parent.$emit("paneEnabled", this);
-      }
-    }
-  },
   mounted() {
     this.$el.style.flexBasis = this.minLength + "px";
     this.$el.style[this.$parent.secondaryAxis] = "100%";

@@ -68,6 +68,7 @@ export default {
       this.destroySeparators();
       this.createSeparators();
       this.evenlyDistributeSpace();
+      this.$emit("enabledPanesChanged", this.enabledPanes);
     }
   },
   mounted() {
