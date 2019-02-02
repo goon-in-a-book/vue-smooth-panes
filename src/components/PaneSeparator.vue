@@ -66,7 +66,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .pane-separator {
   display: flex;
   flex-wrap: nowrap;

@@ -67,7 +67,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .pane {
   flex-grow: 1;
   overflow: auto;
